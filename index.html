@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just Friend?</title>
+    <style>
+        /* Desain Latar Belakang dan Layout */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ffb6c1, #ffc0cb);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Desain Kotak Utama */
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
+            position: relative;
+            max-width: 90%;
+            width: 390px; /* Lebar disesuaikan agar pas dengan teks */
+            z-index: 10;
+        }
+
+        img {
+            width: 180px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-size: 22px;
+            margin-bottom: 30px;
+            transition: 0.3s;
+            line-height: 1.4;
+        }
+
+        /* Desain Tombol */
+        .buttons {
+            position: relative;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        button {
+            font-size: 15px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+        }
+
+        #noBtn {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 2px solid #ddd;
+            position: absolute;
+            left: calc(50% + 5px); 
+            white-space: nowrap;
+        }
+
+        /* Pilihan Bahasa */
+        .lang-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        select {
+            padding: 8px 12px;
+            border-radius: 10px;
+            border: 2px solid #ff4d6d;
+            background: white;
+            color: #ff4d6d;
+            font-weight: bold;
+            cursor: pointer;
+            outline: none;
+            font-family: inherit;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Animasi Hati Beterbangan */
+        .heart {
+            position: absolute;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.6);
+            animation: float 4s linear infinite;
+            z-index: 1;
+            user-select: none;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menu Pilihan Bahasa (Indonesia, Korea, Inggris) -->
+    <div class="lang-selector">
+        <select id="langSelect" onchange="changeLang()">
+            <option value="id">🇮🇩 Indonesia</option>
+            <option value="kr">🇰🇷 Korea</option>
+            <option value="en">🇬🇧 English</option>
+        </select>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="container" id="mainCard">
+        <img id="gif" src="https://media.tenor.com/T_2q0Mh-2t8AAAAi/tkthao219-bubududu.gif" alt="Please">
+        <h1 id="question">Nara, sampai kapan kita cuma mau temenan aja?</h1>
+        <div class="buttons" id="btnContainer">
+            <button id="yesBtn" onclick="accept()" style="margin-right: 140px;">Yuk, pacaran!</button>
+            <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()" ontouchstart="moveNo()">Sampai selamanya</button>
+        </div>
+    </div>
+
+    <script>
+        // Database Teks untuk Indonesia, Korea, dan Inggris
+        const texts = {
+            id: {
+                q: "Nara, sampai kapan kita cuma mau temenan aja?",
+                y: "Yuk, pacaran!",
+                n: "Sampai selamanya",
+                success: "Akhirnya nggak cuma temenan, sekarang udah jadian! "
+            },
+            kr: {
+                q: "우리 언제까지 그냥 친구로만 지낼 거야?",
+                y: "그럼, 이제 사귀자!",
+                n: "평생 친구로 지내",
+                success: "드디어 친구에서 연인이 됐네! "
+            },
+            en: {
+                q: "How long are we going to stay just friends?",
+                y: "Let's be official!",
+                n: "Until forever",
+                success: "Finally upgraded from friends to lovers! "
+            }
+        };
+
+        // Mengatur bahasa default ke Indonesia
+        let currentLang = 'id';
+        const noBtn = document.getElementById("noBtn");
+        const yesBtn = document.getElementById("yesBtn");
+
+        // Fungsi mengubah bahasa
+        function changeLang() {
+            currentLang = document.getElementById("langSelect").value;
+            document.getElementById("question").innerText = texts[currentLang].q;
+            yesBtn.innerText = texts[currentLang].y;
+            noBtn.innerText = texts[currentLang].n;
+        }
+
+        // Fungsi tombol "Tidak / Menolak" kabur
+        function moveNo() {
+            noBtn.style.position = 'fixed';
+            
+            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
+            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+            
+            const randomX = Math.max(20, Math.random() * maxX);
+            const randomY = Math.max(20, Math.random() * maxY);
+            
+            noBtn.style.left = `${randomX}px`;
+            noBtn.style.top = `${randomY}px`;
+        }
+
+        // Fungsi ketika tombol "Iya / Menerima" ditekan
+        function accept() {
+            document.getElementById("question").innerText = texts[currentLang].success;
+            document.getElementById("gif").src = "https://media.tenor.com/yU4E_2OqR3cAAAAi/cute-cat.gif"; 
+            
+            document.getElementById("btnContainer").style.display = "none";
+            document.querySelector(".lang-selector").style.display = "none";
+            
+            noBtn.style.display = "none"; 
+        }
+
+        // Fungsi membuat hati beterbangan di background
+        setInterval(() => {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.innerText = "❤";
+            heart.style.left = Math.random() * 100 + "vw";
+            heart.style.animationDuration = Math.random() * 2 + 3 + "s";
+            document.body.appendChild(heart);
+            
+            setTimeout(() => heart.remove(), 5000);
+        }, 300);
+    </script>
+</body>
+</html>
